@@ -2,8 +2,9 @@ import GenerateResponse from './generateResponse.js';
 import BalanceLoad from './balanceLoad.js';
 import WebsocketController from '../controllers/websocketController.js';
 import { queue } from '../controllers/websocketController.js';
+import { userSendStatus } from '../controllers/websocketController.js';
 class HandleRequest {
-  async handleRequest(host, ws, text) {
+  async handleRequest(host, ws, text, userId) {
     try {
       const response = await GenerateResponse.generateResponse(
         `http://127.0.0.1:${host}/api/generate`,
@@ -29,6 +30,7 @@ class HandleRequest {
 
       response.data.on('end', () => {
         ws.send(JSON.stringify({ text: '[END]' }));
+        userSendStatus[userId] = true;
         if (queue[0]) {
           WebsocketController.getFirstQueue(host);
         } else {

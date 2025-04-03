@@ -4,12 +4,21 @@ import { URL } from 'url';
 
 const clients = new Map();
 export const queue = [];
+
+export const userSendStatus = {};
 class WebsocketController {
   websocket(ws, req) {
     try {
       WebsocketController.handleClientConnection(req, ws);
       ws.on('message', async (message) => {
         const data = JSON.parse(message);
+        if (userSendStatus[data.user_id] === false) {
+          console.log(`Повторное нажатие от ${data.user_id}, игнорируем...`);
+          return;
+        }
+        if (userSendStatus[data.user_id] === true)
+          userSendStatus[data.user_id] = false;
+
         const wss = clients.get(data.user_id);
         if (!wss) {
           console.error(`Не найден WebSocket для user_id: ${data.user_id}`);
@@ -22,7 +31,12 @@ class WebsocketController {
           queue.push(messageData);
           console.log(queue);
         } else {
-          HandleRequest.handleRequest(response.url, wss, data.text);
+          HandleRequest.handleRequest(
+            response.url,
+            wss,
+            data.text,
+            data.user_id,
+          );
         }
       });
 
@@ -45,6 +59,8 @@ class WebsocketController {
         return;
       }
 
+      userSendStatus[clientId] = true;
+      console.log(userSendStatus);
       clients.set(clientId, ws);
       ws.clientId = clientId;
       console.log(`Клиент ${clientId} подключился`);
