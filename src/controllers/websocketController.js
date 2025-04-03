@@ -43,6 +43,7 @@ class WebsocketController {
       ws.on('close', () => {
         console.log(`Клиент ${ws.clientId} отключился`);
         clients.delete(ws.clientId);
+        delete userSendStatus[ws.clientId];
       });
     } catch (e) {
       console.log(e);
@@ -60,7 +61,6 @@ class WebsocketController {
       }
 
       userSendStatus[clientId] = true;
-      console.log(userSendStatus);
       clients.set(clientId, ws);
       ws.clientId = clientId;
       console.log(`Клиент ${clientId} подключился`);
