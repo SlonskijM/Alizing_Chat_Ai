@@ -1,13 +1,13 @@
 const hosts = [
-  { url: 11434, load: 0, max_load: process.env.MAXLOAD || 5 },
-  // { url: 11435, load: 0, max_load: process.env.MAXLOAD || 5 },
-  // { url: 11436, load: 0, max_load: process.env.MAXLOAD || 5 },
+  { url: 11434, load: 0, max_load: process.env.MAXLOAD || 5, is_active: true },
+  { url: 11435, load: 0, max_load: process.env.MAXLOAD || 5, is_active: true },
+  { url: 11436, load: 0, max_load: process.env.MAXLOAD || 5, is_active: false },
 ];
 
 class BalanceLoad {
   balanceLoad() {
     const sortedHosts = hosts
-      .filter((host) => host.load < host.max_load)
+      .filter((host) => host.is_active === true && host.load < host.max_load)
       .sort((a, b) => a.load - b.load);
     const available = sortedHosts.length > 0 ? sortedHosts[0] : null;
     if (available) {
